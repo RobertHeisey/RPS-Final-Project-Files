@@ -1,0 +1,131 @@
+import 'package:flutter/material.dart';
+import 'game_model.dart';
+import 'dart:math';
+
+void main() {
+  runApp(RockPaperScissorsApp());
+}
+
+class RockPaperScissorsApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: GameScreen(), debugShowCheckedModeBanner: false);
+  }
+}
+
+class GameScreen extends StatefulWidget {
+  @override
+  _GameScreenState createState() => _GameScreenState();
+}
+
+class _GameScreenState extends State<GameScreen> {
+  GameState _gameState = GameState();
+
+  final List<String> _choices = ['Rock', 'Paper', 'Scissors'];
+  final Map<String, IconData> _icons = {
+    'Rock': Icons.pan_tool,
+    'Paper': Icons.description,
+    'Scissors': Icons.content_cut,
+  };
+
+  void _playRound(String playerChoice) {
+    String computerChoice = _choices[Random().nextInt(3)];
+
+    String result;
+    if (playerChoice == computerChoice) {
+      result = "It's a Tie!";
+    } else if ((playerChoice == 'Rock' && computerChoice == 'Scissors') ||
+        (playerChoice == 'Paper' && computerChoice == 'Rock') ||
+        (playerChoice == 'Scissors' && computerChoice == 'Paper')) {
+      result = "Player Wins!";
+      _gameState.currentStreak++;
+      _gameState.highestStreak = max(
+        _gameState.highestStreak,
+        _gameState.currentStreak,
+      );
+    } else {
+      result = "Computer Wins!";
+      _gameState.currentStreak = 0;
+    }
+
+    setState(() {
+      _gameState.playerChoice = playerChoice;
+      _gameState.computerChoice = computerChoice;
+      _gameState.result = result;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Rock Paper Scissors')),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            // Counters Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Current Streak: ${_gameState.currentStreak}',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Text(
+                  'Highest Streak: ${_gameState.highestStreak}',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+
+            // Result Text
+            Text(
+              _gameState.result,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 30),
+
+            // Choices Display
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildChoiceColumn('Player', _gameState.playerChoice),
+                _buildChoiceColumn('Computer', _gameState.computerChoice),
+              ],
+            ),
+            SizedBox(height: 40),
+
+            // Choice Buttons
+            Column(
+              children:
+                  _choices
+                      .map(
+                        (choice) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: ElevatedButton(
+                            onPressed: () => _playRound(choice),
+                            child: Text(choice),
+                          ),
+                        ),
+                      )
+                      .toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChoiceColumn(String label, String choice) {
+    return Column(
+      children: [
+        Text(choice.isEmpty ? '' : '$choice!', style: TextStyle(fontSize: 20)),
+        SizedBox(height: 10),
+        Icon(_icons[choice] ?? Icons.help_outline, size: 60),
+        SizedBox(height: 10),
+        Text(label),
+      ],
+    );
+  }
+}
