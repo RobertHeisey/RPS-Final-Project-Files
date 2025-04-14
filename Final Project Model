@@ -1,0 +1,15 @@
+class GameState {
+  int currentStreak;
+  int highestStreak;
+  String playerChoice;
+  String computerChoice;
+  String result;
+
+  GameState({
+    this.currentStreak = 0,
+    this.highestStreak = 0,
+    this.playerChoice = '',
+    this.computerChoice = '',
+    this.result = '',
+  });
+}
